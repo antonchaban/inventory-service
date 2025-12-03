@@ -2,13 +2,15 @@ package org.example.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper = true) // Важливо для Lombok
 @Entity
 @Table(name = "warehouses")
-public class Warehouse {
+public class Warehouse extends AuditableEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // or SEQUENCE if needed
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "total_capacity", nullable = false)

@@ -2,12 +2,15 @@ package org.example.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import java.io.Serializable;
 
 @Data
 @Entity
+@EqualsAndHashCode(callSuper = true)
 @Table(name = "stock_levels")
-public class StockLevel {
+public class StockLevel extends AuditableEntity {
 
     @EmbeddedId
     private StockLevelId id;

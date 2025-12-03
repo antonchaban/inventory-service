@@ -7,6 +7,7 @@ import org.example.entity.Supply;
 import org.example.repository.SupplyRepository;
 import org.example.service.EventPublisher;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -21,25 +22,24 @@ public class DistributionController {
     private final EventPublisher eventPublisher;
 
     @PostMapping("/calculate")
+    // ВАЖЛИВО: Тільки Логіст має право натискати цю кнопку [cite: 177]
+    @PreAuthorize("hasRole('LOGISTICIAN')")
     public ResponseEntity<?> triggerCalculation(@RequestBody CalculateRequest request) {
-        // 1. Валідація: Чи існує така поставка?
-        Supply supply = supplyRepository.findById(request.getSupplyId())
-                .orElseThrow(() -> new RuntimeException("Supply not found: " + request.getSupplyId()));
 
-        // 2. Генерація ID запиту
+        Supply supply = supplyRepository.findById(request.getSupplyId())
+                .orElseThrow(() -> new RuntimeException("Supply not found"));
+
         String requestId = UUID.randomUUID().toString();
 
-        // 3. Формування події
-        DistributionEvent event = DistributionEvent.builder()
+        // Використовуємо Builder, але не робимо .build(),
+        // бо EventPublisher сам додасть юзера і збілдить об'єкт.
+        var eventBuilder = DistributionEvent.builder()
                 .requestId(requestId)
                 .supplyId(supply.getId())
-                .sourceWarehouseId(supply.getWarehouseId())
-                .build();
+                .sourceWarehouseId(supply.getWarehouseId());
 
-        // 4. Відправка в RabbitMQ -> Go Service
-        eventPublisher.sendCalculationRequest(event);
+        eventPublisher.sendCalculationRequest(eventBuilder);
 
-        // 5. Повертаємо ID клієнту (щоб він міг пулити статус)
         return ResponseEntity.accepted().body(Map.of(
                 "message", "Calculation triggered successfully",
                 "request_id", requestId

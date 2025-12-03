@@ -15,4 +15,10 @@ public class DistributionEvent {
 
     @JsonProperty("source_warehouse_id")
     private Long sourceWarehouseId;
+
+    @JsonProperty("initiated_by_user_id")
+    private Long initiatedByUserId;
+
+    @JsonProperty("initiated_by_username")
+    private String initiatedByUsername;
 }
