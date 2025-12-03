@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: inventory-service
+
+  # Database Configuration
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/warehouse_db}
+    username: ${DATABASE_USER:user}
+    password: ${DATABASE_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+
+  # JPA / Hibernate
+  jpa:
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    # We use Liquibase for schema management, so we validate entities match tables
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+
+  # Migration Tool
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+  # RabbitMQ Configuration
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASS:guest}
+
+# gRPC Server Configuration (net.devh)
+grpc:
+  server:
+    port: 9090 # Port for Go service to connect to
